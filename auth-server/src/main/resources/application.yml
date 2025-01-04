@@ -1,5 +1,6 @@
 server:
   port: 9000
+  address: authserver
 
 spring:
   application:

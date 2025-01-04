@@ -20,7 +20,7 @@ spring:
       client:
         provider:
           platform-auth-server:
-            issuer-uri: http://localhost:9000
+            issuer-uri: http://authserver:9000
         registration:
           gateway-client:
             provider: platform-auth-server
