@@ -95,6 +95,18 @@ public class SecurityConfig {
         return new InMemoryRegisteredClientRepository(webClient);
     }
 
+    @Bean
+    UserDetailsService users() {
+        // @formatter:off
+        UserDetails user = User.builder()
+                .username("prime")
+                .password("agen")
+                .passwordEncoder(passwordEncoder()::encode)
+                .roles("USER")
+                .build();
+        // @formatter:on
+        return new InMemoryUserDetailsManager(user);
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
