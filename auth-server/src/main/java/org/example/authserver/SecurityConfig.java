@@ -32,6 +32,50 @@ public class SecurityConfig {
     private final static String GATEWAY_CLIENT_HOST_URL = "http://localhost:8080";
 
     @Bean
+    @Order(1) // security filter chain for the authorization server
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+        // @formatter:off
+
+        // applyDefaultSecurity method deprecated as of spring security 6.4.2, so we replace it with below code block
+        // -- STARTS HERE
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+                OAuth2AuthorizationServerConfigurer.authorizationServer();
+
+        http
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+                .with(authorizationServerConfigurer, authorizationServer ->
+                        authorizationServer.oidc(Customizer.withDefaults()) // enable openid connect
+                ) // enable openid connect
+                .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
+        // -- ENDS HERE
+
+        http
+                .exceptionHandling((exceptions) -> // If any errors occur redirect user to login page
+                        exceptions.defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                        )
+                )
+                // enable auth server to accept JWT for endpoints such as /userinfo
+                .oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults()));
+        // @formatter:on
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2) // security filter chain for the rest of your application and any custom endpoints you may have
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        // @formatter:off
+        http
+                .formLogin(Customizer.withDefaults()) // Enable form login
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+        // @formatter:on
+
+        return http.build();
+    }
+
+    @Bean
     public RegisteredClientRepository registeredClientRepository() {
         // @formatter:off
         RegisteredClient webClient = RegisteredClient
