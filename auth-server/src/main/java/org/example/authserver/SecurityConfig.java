@@ -94,3 +94,10 @@ public class SecurityConfig {
         // @formatter:on
         return new InMemoryRegisteredClientRepository(webClient);
     }
+
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
