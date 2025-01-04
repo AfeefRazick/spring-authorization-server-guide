@@ -14,3 +14,28 @@ spring:
             - Path=/books/**
           filters:
             - TokenRelay # Token relay filter appends the oauth (or jwt) token to request header before forwarding requests
+
+  security:
+    oauth2:
+      client:
+        provider:
+          platform-auth-server:
+            issuer-uri: http://localhost:9000
+        registration:
+          gateway-client:
+            provider: platform-auth-server
+            client-id: gateway-client
+            client-secret: "secret"
+            client-authentication-method: client_secret_basic
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8080/login/oauth2/code/gateway-client
+            scope:
+              - openid
+              - profile
+              - email
+
+
+logging:
+  level:
+    org.springframework.cloud: TRACE
+    org.springframework.security: TRACE
