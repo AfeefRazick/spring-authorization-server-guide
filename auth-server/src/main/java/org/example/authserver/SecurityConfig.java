@@ -72,6 +72,7 @@ public class SecurityConfig {
         // -- ENDS HERE
 
         http
+                .cors(Customizer.withDefaults())
                 .exceptionHandling((exceptions) -> // If any errors occur redirect user to login page
                         exceptions.defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint("/login"),
@@ -90,6 +91,7 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
+                .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults()) // Enable form login
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
         // @formatter:on
