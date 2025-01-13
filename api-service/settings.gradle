@@ -1,1 +1,3 @@
 rootProject.name = 'api-service'
+include 'api-gateway'
+include 'book-service'

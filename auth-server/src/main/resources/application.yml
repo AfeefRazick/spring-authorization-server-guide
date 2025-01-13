@@ -1,0 +1,12 @@
+server:
+  port: 9000
+  address: authserver
+
+spring:
+  application:
+   name: auth-server
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.security: TRACE
