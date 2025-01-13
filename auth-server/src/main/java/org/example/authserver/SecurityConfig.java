@@ -164,7 +164,8 @@ public class SecurityConfig {
         JwtGenerator jwtAccessTokenGenerator = new JwtGenerator(jwtEncoder);
         jwtAccessTokenGenerator.setJwtCustomizer(oauth2AccessTokenCustomizer);
 
-        return new DelegatingOAuth2TokenGenerator(jwtAccessTokenGenerator);
+        return new DelegatingOAuth2TokenGenerator(jwtAccessTokenGenerator, new OAuth2PublicClientRefreshTokenGenerator());
+    }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
