@@ -49,6 +49,7 @@ public class SecurityConfig {
 
     private final static String GATEWAY_CLIENT_ID = "gateway-client";
     private final static String GATEWAY_CLIENT_HOST_URL = "http://localhost:8080";
+    private final static String PUBLIC_CLIENT_ID = "public-client";
     private final static String PUBLIC_CLIENT_HOST_URL = "http://localhost:5173";
 
     private final Oauth2AccessTokenCustomizer oauth2AccessTokenCustomizer;
@@ -114,9 +115,29 @@ public class SecurityConfig {
                 .scope(OidcScopes.OPENID)  // openid scope is mandatory for authentication
                 .scope(OidcScopes.PROFILE)
                 .scope(OidcScopes.EMAIL)
+        // @formatter:off
+        RegisteredClient publicWebClient = RegisteredClient
+                .withId(UUID.randomUUID().toString())
+                .clientId(PUBLIC_CLIENT_ID)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // authentication method set to 'NONE'
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri(PUBLIC_CLIENT_HOST_URL + "/callback")
+                .postLogoutRedirectUri(PUBLIC_CLIENT_HOST_URL + "/logout")
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .scope(OidcScopes.EMAIL)
+                .clientSettings(ClientSettings.builder().requireProofKey(true).build()) // enable PKCE
+                .tokenSettings(
+                        TokenSettings.builder()
+                                .accessTokenTimeToLive(Duration.ofSeconds(70))
+                                .reuseRefreshTokens(false)
+                                .build()
+                )
                 .build();
         // @formatter:on
-        return new InMemoryRegisteredClientRepository(webClient);
+
+        return new InMemoryRegisteredClientRepository(webClient, publicWebClient);
     }
 
     @Bean
