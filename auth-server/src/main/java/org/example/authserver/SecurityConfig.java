@@ -59,18 +59,26 @@ public class SecurityConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
 
-        // applyDefaultSecurity method deprecated as of spring security 6.4.2, so we replace it with below code block
-        // -- STARTS HERE
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, authorizationServer ->
-                        authorizationServer.oidc(Customizer.withDefaults()) // enable openid connect
-                ) // enable openid connect
+                        authorizationServer
+                                .oidc(Customizer.withDefaults()) // enable openid connect
+                                .clientAuthentication(clientAuthenticationConfigurer ->
+                                       clientAuthenticationConfigurer
+                                               .authenticationConverter(new PublicClientRefreshTokenAuthenticationConverter())
+                                               .authenticationProvider(
+                                                       new PublicClientRefreshTokenAuthenticationProvider(
+                                                               registeredClientRepository(),
+                                                               new InMemoryOAuth2AuthorizationService() // replace with your AuthorizationService implementation
+                                                       )
+                                               )
+                                )
+                )
                 .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
-        // -- ENDS HERE
 
         http
                 .cors(Customizer.withDefaults())
