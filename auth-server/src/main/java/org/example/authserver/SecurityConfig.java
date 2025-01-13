@@ -123,6 +123,9 @@ public class SecurityConfig {
                 .scope(OidcScopes.OPENID)  // openid scope is mandatory for authentication
                 .scope(OidcScopes.PROFILE)
                 .scope(OidcScopes.EMAIL)
+                .build();
+        // @formatter:on
+
         // @formatter:off
         RegisteredClient publicWebClient = RegisteredClient
                 .withId(UUID.randomUUID().toString())
