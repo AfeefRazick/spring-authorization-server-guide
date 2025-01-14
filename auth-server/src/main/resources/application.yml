@@ -6,6 +6,15 @@ spring:
   application:
    name: auth-server
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: 432843073336-25dti6760u9drsjee2rmuho3au9ph90n.apps.googleusercontent.com
+            clientSecret: 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
+            authorization-grant-type: authorization_code
+
 logging:
   level:
     org.springframework.web: DEBUG
