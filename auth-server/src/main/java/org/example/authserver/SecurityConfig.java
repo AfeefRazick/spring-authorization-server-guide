@@ -50,8 +50,6 @@ public class SecurityConfig {
     private final static String PUBLIC_CLIENT_ID = "public-client";
     private final static String PUBLIC_CLIENT_HOST_URL = "http://localhost:5173";
 
-    private final Oauth2AccessTokenCustomizer oauth2AccessTokenCustomizer;
-
     @Bean
     @Order(1) // security filter chain for the authorization server
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -182,7 +180,7 @@ public class SecurityConfig {
     OAuth2TokenGenerator<OAuth2Token> tokenGenerator(JWKSource<SecurityContext> jwkSource) {
         JwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
         JwtGenerator jwtAccessTokenGenerator = new JwtGenerator(jwtEncoder);
-        jwtAccessTokenGenerator.setJwtCustomizer(oauth2AccessTokenCustomizer);
+        jwtAccessTokenGenerator.setJwtCustomizer(new Oauth2AccessTokenCustomizer(users()));
 
         return new DelegatingOAuth2TokenGenerator(jwtAccessTokenGenerator, new OAuth2PublicClientRefreshTokenGenerator());
     }
