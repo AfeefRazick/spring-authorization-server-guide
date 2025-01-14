@@ -6,7 +6,7 @@ import { UserManagerSettings } from "oidc-client-ts";
 import { AuthProvider } from "react-oidc-context";
 
 const CLIENT_ID = "public-client";
-const AUTH_SERVER_URL = "http://authserver:9000";
+const AUTH_SERVER_URL = "http://127.0.0.1:9000";
 const HOST_URL = window.location.origin;
 
 const oidcConfig: UserManagerSettings = {
