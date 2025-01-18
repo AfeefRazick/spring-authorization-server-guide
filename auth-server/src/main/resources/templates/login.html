@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome Back! - Ticketed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .split-container {
+            display: flex;
+            width: 100%;
+        }
+
+        .left-side {
+            flex: 1;
+            background-color: #4CD6B4;
+            padding: 2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 3rem;
+        }
+
+        .hero-text {
+            max-width: 300px;
+            color: #1a3025;
+            font-size: 1.25rem;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+
+        .mountains {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .right-side {
+            flex: 1;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #666;
+        }
+
+        .google-sign-in {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: white;
+            color: #757575;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+        }
+
+        .google-sign-in img {
+            width: 18px;
+            height: 18px;
+            margin-right: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #4CD6B4;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-password a {
+            color: #4CD6B4;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .alert-error {
+            display: flex;
+            gap: 10px;
+            background: #fff2f0;
+            border: 1px #ffa39e solid;
+            padding: 10px 12px 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+        }
+
+        .alert-error svg {
+            fill: red;
+            width: 16px;
+            height: 16px;
+            min-width: 16px;
+            min-height: 16px;
+            margin-top: 2px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4CD6B4;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .signup-prompt {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .signup-prompt a {
+            color: #4CD6B4;
+            text-decoration: none;
+        }
+
+        .skip-link {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .skip-link a {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+            }
+
+            .left-side {
+                display: none;
+            }
+
+            .right-side {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="split-container">
+    <div class="left-side">
+        <div class="logo">Spring Authorization Server</div>
+        <div class="hero-text">
+            Go from 0-90,<br>
+            Your almost at prod!
+        </div>
+        <img class="mountains" th:src="@{/images/mountains.jpg}" alt="mountains"/>
+    </div>
+    <div class="right-side">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Welcome Back!</h1>
+                <p>Continue with Google or enter your details.</p>
+            </div>
+            <a href="/oauth2/authorization/google" role="link" class="google-sign-in">
+                <img src="data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z' fill='%234285F4'/%3E%3Cpath d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z' fill='%2334A853'/%3E%3Cpath d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z' fill='%23FBBC05'/%3E%3Cpath d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z' fill='%23EA4335'/%3E%3C/svg%3E"
+                     alt="Google logo">
+                Login with Google
+            </a>
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">Email</label>
+                    <input
+                            type="email"
+                            id="username"
+                            name="username"
+                            placeholder="example@gmail.com"
+                            required
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-container">
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="••••••"
+                                required
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <svg id="eye-slashed" class="hidden" xmlns="http://www.w3.org/2000/svg" width="20"
+                                 height="20"
+                                 fill="#000000" viewBox="0 0 256 256">
+                                <path d="M53.92,34.62A8,8,0,1,0,42.08,45.38L61.32,66.55C25,88.84,9.38,123.2,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208a127.11,127.11,0,0,0,52.07-10.83l22,24.21a8,8,0,1,0,11.84-10.76Zm47.33,75.84,41.67,45.85a32,32,0,0,1-41.67-45.85ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.16,133.16,0,0,1,25,128c4.69-8.79,19.66-33.39,47.35-49.38l18,19.75a48,48,0,0,0,63.66,70l14.73,16.2A112,112,0,0,1,128,192Zm6-95.43a8,8,0,0,1,3-15.72,48.16,48.16,0,0,1,38.77,42.64,8,8,0,0,1-7.22,8.71,6.39,6.39,0,0,1-.75,0,8,8,0,0,1-8-7.26A32.09,32.09,0,0,0,134,96.57Zm113.28,34.69c-.42.94-10.55,23.37-33.36,43.8a8,8,0,1,1-10.67-11.92A132.77,132.77,0,0,0,231.05,128a133.15,133.15,0,0,0-23.12-30.77C185.67,75.19,158.78,64,128,64a118.37,118.37,0,0,0-19.36,1.57A8,8,0,1,1,106,49.79,134,134,0,0,1,128,48c34.88,0,66.57,13.26,91.66,38.35,18.83,18.83,27.3,37.62,27.65,38.41A8,8,0,0,1,247.31,131.26Z"></path>
+                            </svg>
+                            <svg id="eye" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#000000"
+                                 viewBox="0 0 256 256">
+                                <path d="M247.31,124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57,61.26,162.88,48,128,48S61.43,61.26,36.34,86.35C17.51,105.18,9,124,8.69,124.76a8,8,0,0,0,0,6.5c.35.79,8.82,19.57,27.65,38.4C61.43,194.74,93.12,208,128,208s66.57-13.26,91.66-38.34c18.83-18.83,27.3-37.61,27.65-38.4A8,8,0,0,0,247.31,124.76ZM128,192c-30.78,0-57.67-11.19-79.93-33.25A133.47,133.47,0,0,1,25,128,133.33,133.33,0,0,1,48.07,97.25C70.33,75.19,97.22,64,128,64s57.67,11.19,79.93,33.25A133.46,133.46,0,0,1,231.05,128C223.84,141.46,192.43,192,128,192Zm0-112a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="/example-forgot-password">Forgot password?</a>
+                    </div>
+                </div>
+
+                <div th:if="${param.error}" class="alert-error">
+                    <svg fill-rule="evenodd" viewBox="64 64 896 896" focusable="false" data-icon="close-circle"
+                         width="1em" height="1em" fill="currentColor" aria-hidden="true">
+                        <path
+                                d="M512 64c247.4 0 448 200.6 448 448S759.4 960 512 960 64 759.4 64 512 264.6 64 512 64zm127.98 274.82h-.04l-.08.06L512 466.75 384.14 338.88c-.04-.05-.06-.06-.08-.06a.12.12 0 00-.07 0c-.03 0-.05.01-.09.05l-45.02 45.02a.2.2 0 00-.05.09.12.12 0 000 .07v.02a.27.27 0 00.06.06L466.75 512 338.88 639.86c-.05.04-.06.06-.06.08a.12.12 0 000 .07c0 .03.01.05.05.09l45.02 45.02a.2.2 0 00.09.05.12.12 0 00.07 0c.02 0 .04-.01.08-.05L512 557.25l127.86 127.87c.04.04.06.05.08.05a.12.12 0 00.07 0c.03 0 .05-.01.09-.05l45.02-45.02a.2.2 0 00.05-.09.12.12 0 000-.07v-.02a.27.27 0 00-.05-.06L557.25 512l127.87-127.86c.04-.04.05-.06.05-.08a.12.12 0 000-.07c0-.03-.01-.05-.05-.09l-45.02-45.02a.2.2 0 00-.09-.05.12.12 0 00-.07 0z"></path>
+                    </svg>
+
+                    The combination of email and password is incorrect!
+                </div>
+
+                <button type="submit" class="login-button">Login</button>
+                <div class="signup-prompt">
+                    Don't have an account? <a href="/example-signup">Sign up for free</a>
+                </div>
+                <div class="skip-link">
+                    <a href="/example-skip">skip for now →</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function togglePassword() {
+        const eyeSlashed = document.getElementById('eye-slashed');
+        eyeSlashed.classList.toggle('hidden');
+        const eye = document.getElementById('eye');
+        eye.classList.toggle('hidden');
+
+        const passwordInput = document.getElementById('password');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+        } else {
+            passwordInput.type = 'password';
+        }
+    }
+</script>
+</body>
+</html>

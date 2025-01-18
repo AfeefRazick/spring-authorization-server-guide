@@ -97,9 +97,13 @@ public class SecurityConfig {
         // @formatter:off
         http
                 .cors(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults()) // Enable form login
-                .oauth2Login(Customizer.withDefaults()) // Enable oauth2 federated identity login
-                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
+                .formLogin(formLogin -> formLogin.loginPage("/login").permitAll()) // Enable form login
+                .oauth2Login(oauth2Login -> oauth2Login.loginPage("/login").permitAll()) // Enable oauth2 federated identity login
+                .authorizeHttpRequests(authorize ->
+                        authorize
+                                .requestMatchers("/webjars/**", "/images/**", "/css/**", "/assets/**", "/favicon.ico").permitAll()
+                                .anyRequest().authenticated()
+                );
         // @formatter:on
 
         return http.build();
