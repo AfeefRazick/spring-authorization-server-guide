@@ -20,18 +20,27 @@ import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.authentication.PublicClientAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.DelegatingOAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2RefreshTokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.time.Duration;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -40,6 +49,8 @@ public class SecurityConfig {
 
     private final static String GATEWAY_CLIENT_ID = "gateway-client";
     private final static String GATEWAY_CLIENT_HOST_URL = "http://localhost:8080";
+    private final static String PUBLIC_CLIENT_ID = "public-client";
+    private final static String PUBLIC_CLIENT_HOST_URL = "http://localhost:5173";
 
     private final Oauth2AccessTokenCustomizer oauth2AccessTokenCustomizer;
 
@@ -48,20 +59,29 @@ public class SecurityConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
 
-        // applyDefaultSecurity method deprecated as of spring security 6.4.2, so we replace it with below code block
-        // -- STARTS HERE
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, authorizationServer ->
-                        authorizationServer.oidc(Customizer.withDefaults()) // enable openid connect
-                ) // enable openid connect
+                        authorizationServer
+                                .oidc(Customizer.withDefaults()) // enable openid connect
+                                .clientAuthentication(clientAuthenticationConfigurer ->
+                                       clientAuthenticationConfigurer
+                                               .authenticationConverter(new PublicClientRefreshTokenAuthenticationConverter())
+                                               .authenticationProvider(
+                                                       new PublicClientRefreshTokenAuthenticationProvider(
+                                                               registeredClientRepository(),
+                                                               new InMemoryOAuth2AuthorizationService() // replace with your AuthorizationService implementation
+                                                       )
+                                               )
+                                )
+                )
                 .authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
-        // -- ENDS HERE
 
         http
+                .cors(Customizer.withDefaults())
                 .exceptionHandling((exceptions) -> // If any errors occur redirect user to login page
                         exceptions.defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint("/login"),
@@ -80,6 +100,7 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
         http
+                .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults()) // Enable form login
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
         // @formatter:on
@@ -104,7 +125,30 @@ public class SecurityConfig {
                 .scope(OidcScopes.EMAIL)
                 .build();
         // @formatter:on
-        return new InMemoryRegisteredClientRepository(webClient);
+
+        // @formatter:off
+        RegisteredClient publicWebClient = RegisteredClient
+                .withId(UUID.randomUUID().toString())
+                .clientId(PUBLIC_CLIENT_ID)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE) // authentication method set to 'NONE'
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri(PUBLIC_CLIENT_HOST_URL + "/callback")
+                .postLogoutRedirectUri(PUBLIC_CLIENT_HOST_URL + "/logout")
+                .scope(OidcScopes.OPENID)
+                .scope(OidcScopes.PROFILE)
+                .scope(OidcScopes.EMAIL)
+                .clientSettings(ClientSettings.builder().requireProofKey(true).build()) // enable PKCE
+                .tokenSettings(
+                        TokenSettings.builder()
+                                .accessTokenTimeToLive(Duration.ofSeconds(70))
+                                .reuseRefreshTokens(false)
+                                .build()
+                )
+                .build();
+        // @formatter:on
+
+        return new InMemoryRegisteredClientRepository(webClient, publicWebClient);
     }
 
     @Bean
@@ -131,6 +175,18 @@ public class SecurityConfig {
         JwtGenerator jwtAccessTokenGenerator = new JwtGenerator(jwtEncoder);
         jwtAccessTokenGenerator.setJwtCustomizer(oauth2AccessTokenCustomizer);
 
-        return new DelegatingOAuth2TokenGenerator(jwtAccessTokenGenerator);
+        return new DelegatingOAuth2TokenGenerator(jwtAccessTokenGenerator, new OAuth2PublicClientRefreshTokenGenerator());
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin(PUBLIC_CLIENT_HOST_URL);
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.setAllowCredentials(true);
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
