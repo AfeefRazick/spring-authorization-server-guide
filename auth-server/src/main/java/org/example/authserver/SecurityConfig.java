@@ -21,7 +21,6 @@ import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.authentication.PublicClientAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -30,7 +29,6 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.DelegatingOAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.JwtGenerator;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2RefreshTokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -51,8 +49,6 @@ public class SecurityConfig {
     private final static String GATEWAY_CLIENT_HOST_URL = "http://localhost:8080";
     private final static String PUBLIC_CLIENT_ID = "public-client";
     private final static String PUBLIC_CLIENT_HOST_URL = "http://localhost:5173";
-
-    private final Oauth2AccessTokenCustomizer oauth2AccessTokenCustomizer;
 
     @Bean
     @Order(1) // security filter chain for the authorization server
@@ -102,6 +98,7 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults()) // Enable form login
+                .oauth2Login(Customizer.withDefaults()) // Enable oauth2 federated identity login
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated());
         // @formatter:on
 
@@ -161,7 +158,17 @@ public class SecurityConfig {
                 .roles("USER")
                 .build();
         // @formatter:on
-        return new InMemoryUserDetailsManager(user);
+
+        // @formatter:off
+        UserDetails me = User.builder()
+                .username("afeefrazickamir@gmail.com")
+                .password("pass")
+                .passwordEncoder(passwordEncoder()::encode)
+                .roles("USER", "ADMIN")
+                .build();
+        // @formatter:on
+
+        return new InMemoryUserDetailsManager(user, me);
     }
 
     @Bean
@@ -173,7 +180,7 @@ public class SecurityConfig {
     OAuth2TokenGenerator<OAuth2Token> tokenGenerator(JWKSource<SecurityContext> jwkSource) {
         JwtEncoder jwtEncoder = new NimbusJwtEncoder(jwkSource);
         JwtGenerator jwtAccessTokenGenerator = new JwtGenerator(jwtEncoder);
-        jwtAccessTokenGenerator.setJwtCustomizer(oauth2AccessTokenCustomizer);
+        jwtAccessTokenGenerator.setJwtCustomizer(new Oauth2AccessTokenCustomizer(users()));
 
         return new DelegatingOAuth2TokenGenerator(jwtAccessTokenGenerator, new OAuth2PublicClientRefreshTokenGenerator());
     }
