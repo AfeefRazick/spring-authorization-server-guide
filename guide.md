@@ -16,10 +16,10 @@ concise as possible.
 Note: This is not a beginner's guide. The content assumes familiarity with Spring
 and related technologies to maintain focus on the Spring Authorization Server.
 
-- Part 1 - Oauth2 Authorization Code Flow - Confidential Client
-- Part 2 - Public Client PKCE Authorization code flow (with refresh tokens)
-- Part 3 - Social login (with customized jwt)
-- Part 4 - Customized login page
+- [Part 1 — Oauth2 Authorization Code Flow — Confidential Client](https://medium.com/@afeefrazickamir/spring-authorization-server-0-90-03d996d5c5a7)
+- [Part 2 — PKCE Authorization code flow — Public Client (with refresh tokens)](https://medium.com/@afeefrazickamir/spring-authorization-server-public-client-pkce-authorization-code-flow-with-refresh-tokens-ac2763080898)
+- [Part 3 — Social login (with customized jwt)](https://medium.com/@afeefrazickamir/spring-authorization-server-social-login-with-customized-jwt-4e7c65e35194)
+- [Part 4 — Customized login page](https://medium.com/@afeefrazickamir/spring-authorization-server-customized-login-page-589df124d26f)
 
 You can find all the code for this series in this Github repo.
 [https://github.com/AfeefRazick/spring-authorization-server-guide](https://github.com/AfeefRazick/spring-authorization-server-guide)
