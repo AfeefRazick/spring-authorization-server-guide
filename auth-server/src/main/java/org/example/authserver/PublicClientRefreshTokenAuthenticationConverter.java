@@ -36,7 +36,7 @@ public class PublicClientRefreshTokenAuthenticationConverter implements Authenti
 
         // client_secret (Should not be present)
         String clientSecret = request.getParameter(OAuth2ParameterNames.CLIENT_SECRET);
-        if (!StringUtils.hasText(clientSecret)) {
+        if (StringUtils.hasText(clientSecret)) {
             return null;
         }
 
